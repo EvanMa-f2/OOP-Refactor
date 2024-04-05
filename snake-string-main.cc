@@ -4,74 +4,87 @@ using namespace std;
 
 #define N 50
 
-bool in_square_grid(int r, int c, int n){
+struct Square{
+    string cell[N];
+    int n;
+};
+
+void init_Square(Square& s){
+    cin>>s.n;
+    for(int i=0;i<s.n;i++){
+        cin>>s.cell[i];
+    }
+}
+
+struct Position{
+    int r;
+    int c;
+};
+
+bool in_square_grid(const int r, const int c, const int n){
     return r>=0&&r<n&&c>=0&&c<n;
 }
 
-int count_zero(string m[N], int r, int c, int n){
+int count_zero(const Square s, const Position pos){
     const int dir[4][2] {{0,1},{0,-1},{1,0},{-1,0}};
     int ans {0};
     for(auto d : dir){
-        if(!in_square_grid(r+d[0],c+d[1],n)||m[r+d[0]][c+d[1]]=='0'){
+        if(!in_square_grid(pos.r+d[0],pos.c+d[1],s.n)||s.cell[pos.r+d[0]][pos.c+d[1]]=='0'){
             ans++;
         }
     }
     return ans;
 }
 
-void decide_head_tail(string m[N], int n, int &head_r, int &head_c, int &tail_r, int &tail_c){
-    int end[2][2];
+void decide_head_tail(const Square s, Position &head, Position &tail){
+    Position end[2];
     int count {0};
-    for(int i=0;i<n;i++){
-        for(int j=0;j<n;j++){
-            if(m[i][j]!='0'&&count_zero(m,i,j,n)==3){
-                end[count][0] = i;
-                end[count][1] = j;
+    for(int i=0;i<s.n;i++){
+        for(int j=0;j<s.n;j++){
+            Position pos {i,j};
+            if(s.cell[i][j]!='0'&&count_zero(s,pos)==3){
+                end[count].r = pos.r;
+                end[count].c = pos.c;
                 count++;
             }
         }
     }
-    if(m[end[0][0]][end[0][1]]>m[end[1][0]][end[1][1]]){
-        head_r = end[1][0];
-        head_c = end[1][1];
-        tail_r = end[0][0];
-        tail_c = end[0][1];
+    if(s.cell[end[0].r][end[0].c]>s.cell[end[1].r][end[1].c]){
+        head.r = end[1].r;
+        head.c = end[1].c;
+        tail.r = end[0].r;
+        tail.c = end[0].c;
     }else{
-        head_r = end[0][0];
-        head_c = end[0][1];
-        tail_r = end[1][0];
-        tail_c = end[1][1];
+        head.r = end[0].r;
+        head.c = end[0].c;
+        tail.r = end[1].r;
+        tail.c = end[1].c;
     }
 }
 
-void go(string m[N], int n, int head_r, int head_c, int tail_r, int tail_c){
-    int r {head_r};
-    int c {head_c};
+void go(const Square s, const Position head, const Position tail){
+    Position cur {head.r,head.c};
     bool walk[N][N] {{0}};
     const int dir[4][2] {{0,1},{0,-1},{1,0},{-1,0}};
-    while(r!=tail_r||c!=tail_c){
-        cout<<m[r][c];
-        walk[r][c] = true;
+    while(cur.r!=tail.r||cur.c!=tail.c){
+        cout<<s.cell[cur.r][cur.c];
+        walk[cur.r][cur.c] = true;
         for(auto d : dir){
-            if(in_square_grid(r+d[0],c+d[1],n)&&(m[r+d[0]][c+d[1]]!='0'&&!walk[r+d[0]][c+d[1]])){
-                r += d[0];
-                c += d[1];
+            if(in_square_grid(cur.r+d[0],cur.c+d[1],s.n)&&(s.cell[cur.r+d[0]][cur.c+d[1]]!='0'&&!walk[cur.r+d[0]][cur.c+d[1]])){
+                cur.r += d[0];
+                cur.c += d[1];
                 break;
             }
         }
     }
-    cout<<m[tail_r][tail_c];
+    cout<<s.cell[tail.r][tail.c];
 }
 
 int main(){
-    int n;
-    cin>>n;
-    string m[N];
-    for(int i=0;i<n;i++){
-        cin>>m[i];
-    }
-    int head_r, head_c, tail_r, tail_c;
-    decide_head_tail(m,n,head_r,head_c,tail_r,tail_c);
-    go(m,n,head_r,head_c,tail_r,tail_c);
+    Square s;
+    init_Square(s);
+    Position head, tail;
+    decide_head_tail(s,head,tail);
+    go(s,head,tail);
     return 0;
 }
