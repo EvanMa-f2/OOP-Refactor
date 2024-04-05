@@ -1,8 +1,7 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<ctype.h>
-#include<stdbool.h>
+#include <iostream>
+#include <string>
+using namespace std;
+
 #define N 50
 
 int count(char m[N+2][N+2], int x, int y){
@@ -19,10 +18,10 @@ int count(char m[N+2][N+2], int x, int y){
 void go(char m[N+2][N+2], int head_x, int head_y, int tail_x, int tail_y){
     int x = head_x;
     int y = head_y;
-    int walk[N+2][N+2]={{0}};
-    int test[4][2] = {{0,1},{0,-1},{1,0},{-1,0}};
+    int walk[N+2][N+2] {{0}};
+    int test[4][2] {{0,1},{0,-1},{1,0},{-1,0}};
     while(x!=tail_x||y!=tail_y){
-        printf("%c",m[x][y]);
+        cout<<m[x][y];
         walk[x][y]++;
         for(int i=0;i<4;i++){
             if(m[x+test[i][0]][y+test[i][1]]!='0'&&walk[x+test[i][0]][y+test[i][1]]==0){
@@ -32,15 +31,13 @@ void go(char m[N+2][N+2], int head_x, int head_y, int tail_x, int tail_y){
             }
         }
     }
-    printf("%c",m[tail_x][tail_y]);
+    cout<<m[tail_x][tail_y];
 }
 
 int main(){
     int n;
-    scanf("%d",&n);
+    cin>>n;
     char m[N+2][N+2];
-    char throw_away;
-    scanf("%c",&throw_away);
     for(int i=0;i<N+2;i++){
         for(int j=0;j<N+2;j++){
             m[i][j] = '0';
@@ -48,9 +45,8 @@ int main(){
     }
     for(int i=1;i<=n;i++){
         for(int j=1;j<=n;j++){
-            scanf("%c",&m[i][j]);
+            cin>>m[i][j];
         }
-        scanf("%c",&throw_away);
     }
     int head[2][2];
     int c_h = 0;
