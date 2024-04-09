@@ -1,92 +1,93 @@
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 #define N 50
-
-struct Square{
-    string cell[N];
-    int n;
-};
-
-void init_Square(Square& s){
-    cin>>s.n;
-    for(int i=0;i<s.n;i++){
-        cin>>s.cell[i];
-    }
-}
 
 struct Position{
     int r;
     int c;
 };
 
+struct CharGrid{
+    vector<string> cell;
+    int size;
+    Position head;
+    Position tail;
+};
+
+void set_Grid(CharGrid& s){
+    cin>>s.size;
+    for(int i=0;i<s.size;i++){
+        string str;
+        cin>>str;
+        s.cell.push_back(str);
+    }
+}
+
 bool in_square_grid(const int r, const int c, const int n){
     return r>=0&&r<n&&c>=0&&c<n;
 }
 
-int count_zero(const Square s, const Position pos){
+int cant_walk(const CharGrid s, const Position pos){
     const Position dir[4] {{0,1},{0,-1},{1,0},{-1,0}};
     int ans {0};
     for(auto d : dir){
-        if(!in_square_grid(pos.r+d.r,pos.c+d.c,s.n)||s.cell[pos.r+d.r][pos.c+d.c]=='0'){
+        if(!in_square_grid(pos.r+d.r,pos.c+d.c,s.size)||s.cell[pos.r+d.r][pos.c+d.c]=='0'){
             ans++;
         }
     }
     return ans;
 }
 
-void find_head_tail(const Square s, Position &head, Position &tail){
-    Position end[2];
-    int count {0};
+void find_head_tail(CharGrid& s){
+    vector<Position> end;
     //find end
-    for(int i=0;i<s.n;i++){
-        for(int j=0;j<s.n;j++){
+    for(int i=0;i<s.size;i++){
+        for(int j=0;j<s.size;j++){
             Position pos {i,j};
-            if(s.cell[i][j]!='0'&&count_zero(s,pos)==3){
-                end[count].r = pos.r;
-                end[count].c = pos.c;
-                count++;
+            if(s.cell[i][j]!='0'&&cant_walk(s,pos)==3){
+                end.push_back(pos);
             }
         }
     }
+    if(end.size()!=2){
+        cout<<"The amount of size is not equal to 2\n"<<endl;
+        exit(-1);
+    }
     //decide head, tail
     if(s.cell[end[0].r][end[0].c]>s.cell[end[1].r][end[1].c]){
-        head.r = end[1].r;
-        head.c = end[1].c;
-        tail.r = end[0].r;
-        tail.c = end[0].c;
+        s.head = end[1];
+        s.tail = end[0];
     }else{
-        head.r = end[0].r;
-        head.c = end[0].c;
-        tail.r = end[1].r;
-        tail.c = end[1].c;
+        s.head = end[0];
+        s.tail = end[1];
     }
 }
 
-void go(const Square s, const Position head, const Position tail){
-    Position cur {head.r,head.c};
-    bool walk[N][N] {{0}};
+void print_snake(const CharGrid &s){
+    Position cur {s.head};
+    vector<vector<bool>> walk (N , vector<bool> (N,0));
     const Position dir[4] {{0,1},{0,-1},{1,0},{-1,0}};
-    while(cur.r!=tail.r||cur.c!=tail.c){
+    while(cur.r!=s.tail.r||cur.c!=s.tail.c){
         cout<<s.cell[cur.r][cur.c];
         walk[cur.r][cur.c] = true;
         for(auto d : dir){
-            if(in_square_grid(cur.r+d.r,cur.c+d.c,s.n)&&(s.cell[cur.r+d.r][cur.c+d.c]!='0'&&!walk[cur.r+d.r][cur.c+d.c])){
+            if(in_square_grid(cur.r+d.r,cur.c+d.c,s.size)&&(s.cell[cur.r+d.r][cur.c+d.c]!='0'&&!walk[cur.r+d.r][cur.c+d.c])){
                 cur.r += d.r;
                 cur.c += d.c;
                 break;
             }
         }
     }
-    cout<<s.cell[tail.r][tail.c];
+    cout<<s.cell[s.tail.r][s.tail.c];
 }
 
 int main(){
-    Square s;
-    init_Square(s);
-    Position head, tail;
-    find_head_tail(s,head,tail);
-    go(s,head,tail);
+    CharGrid s;
+    set_Grid(s);
+    find_head_tail(s);
+    print_snake(s);
     return 0;
 }
