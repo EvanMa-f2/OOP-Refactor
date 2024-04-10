@@ -3,69 +3,121 @@ using namespace std;
 #include "CharSquareGrid.h"
 #define N 50
 
-bool in_square_grid(const int r, const int c, const int n){
-    return r>=0&&r<n&&c>=0&&c<n;
+CharSquareGrid::CharSquareGrid(void): walk (N,vector<bool> (N,0)){
 }
 
-void set_Grid(CharGrid& s){
-    cin>>s.size;
-    for(int i=0;i<s.size;i++){
-        string str;
-        cin>>str;
-        s.cell.push_back(str);
+bool CharSquareGrid::in(const Position &pos) const{
+    auto r {pos.getRow()};
+    auto c {pos.getCol()};
+    return r>=0 && r<size && 
+        c>=0 && c<size;
+}
+
+char CharSquareGrid::getCell(const Position &pos) const{
+    auto r {pos.getRow()};
+    auto c {pos.getCol()};
+    if(in(pos)){
+        return cell[r][c];
+    }else{
+        printf("position not in the grid while calling getCell\n");
+        exit(-1);
     }
 }
 
-int cant_walk(const CharGrid s, const Position pos){
+bool CharSquareGrid::walked(const Position &pos) const{
+    auto r {pos.getRow()};
+    auto c {pos.getCol()};
+    if(in(pos)){
+        return walk[r][c];
+    }else{
+        printf("position not in the grid while calling walked\n");
+        exit(-1);
+    }
+}
+
+void CharSquareGrid::walk_through(const Position &pos){
+    auto r {pos.getRow()};
+    auto c {pos.getCol()};
+    if(in(pos)){
+        walk[r][c] = true;
+    }else{
+        printf("position not in the grid while calling walk_through\n");
+        exit(-1);
+    }
+}
+
+int CharSquareGrid::neighbor_cant_walk(const Position &pos) const{
     const vector<Position> dir {{0,1},{0,-1},{1,0},{-1,0}};
     int ans {0};
-    for(auto d : dir){
-        if(!in_square_grid(pos.r+d.r,pos.c+d.c,s.size)||s.cell[pos.r+d.r][pos.c+d.c]=='0'){
+    auto r {pos.getRow()};
+    auto c {pos.getCol()};
+    for(auto &d : dir){
+        const auto dr {d.getRow()};
+        const auto dc {d.getCol()};
+        if(!in(Position(r+dr,c+dc))||getCell(Position(r+dr,c+dc))=='0'){
             ans++;
         }
     }
     return ans;
 }
 
-void find_head_tail(CharGrid& s){
+void CharSquareGrid::set_Grid(void){
+    int n;
+    scanf("%d",&n);
+    size = n;
+    for(int i=0;i<size;i++){
+        string str;
+        cin>>str;
+        cell.push_back(str);
+    }
+}
+
+void CharSquareGrid::find_head_tail(void){
     vector<Position> end;
     //find end
-    for(int i=0;i<s.size;i++){
-        for(int j=0;j<s.size;j++){
-            Position pos {i,j};
-            if(s.cell[i][j]!='0'&&cant_walk(s,pos)==3){
-                end.push_back(pos);
+    for(int i=0;i<size;i++){
+        for(int j=0;j<size;j++){
+            if(getCell(Position(i,j))!='0'&&neighbor_cant_walk(Position(i,j))==3){
+                end.push_back(Position(i,j));
             }
         }
     }
     if(end.size()!=2){
-        cout<<"The amount of size is not equal to 2\n"<<endl;
+        cout<<"The amount of end is not equal to 2"<<endl;
+        cout<<end.size()<<endl;
         exit(-1);
     }
     //decide head, tail
-    if(s.cell[end[0].r][end[0].c]>s.cell[end[1].r][end[1].c]){
-        s.head = end[1];
-        s.tail = end[0];
+    if(getCell(Position(end[0]))>getCell(Position(end[1]))){
+        head.setRow(end[1].getRow());
+        head.setCol(end[1].getCol());
+        tail.setRow(end[0].getRow());
+        tail.setCol(end[0].getCol());
     }else{
-        s.head = end[0];
-        s.tail = end[1];
+        head.setRow(end[0].getRow());
+        head.setCol(end[0].getCol());
+        tail.setRow(end[1].getRow());
+        tail.setCol(end[1].getCol());
     }
 }
 
-void print_snake(const CharGrid &s){
-    Position cur {s.head};
-    vector<vector<bool>> walk (N , vector<bool> (N,0));
+void CharSquareGrid::print_snake(void){
+    Position cur {head};
     const vector<Position> dir {{0,1},{0,-1},{1,0},{-1,0}};
-    while(cur.r!=s.tail.r||cur.c!=s.tail.c){
-        cout<<s.cell[cur.r][cur.c];
-        walk[cur.r][cur.c] = true;
-        for(auto d : dir){
-            if(in_square_grid(cur.r+d.r,cur.c+d.c,s.size)&&(s.cell[cur.r+d.r][cur.c+d.c]!='0'&&!walk[cur.r+d.r][cur.c+d.c])){
-                cur.r += d.r;
-                cur.c += d.c;
+    while(cur.getRow()!=tail.getRow()||cur.getCol()!=tail.getCol()){
+        cout<<getCell(cur);
+        walk_through(cur);
+        for(auto &d : dir){
+            const auto dr {d.getRow()};
+            const auto dc {d.getCol()};
+            const auto r {cur.getRow()};
+            const auto c {cur.getCol()};
+            if(in(Position(r+dr,c+dc))&&getCell(Position(r+dr,c+dc))!='0'&&!walked(Position(r+dr,c+dc))){
+                cur.setRow(r+dr);
+                cur.setCol(c+dc);
                 break;
             }
         }
     }
-    cout<<s.cell[s.tail.r][s.tail.c];
+    cout<<getCell(tail);
 }

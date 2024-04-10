@@ -3,16 +3,24 @@
 #include "Position.h"
 #include <string>
 #include <vector>
-struct CharGrid{
-    vector<string> cell;
-    int size;
-    Position head;
-    Position tail;
+class CharSquareGrid{
+    private:
+        vector<string> cell;
+        vector<vector<bool>> walk;
+        int size;
+        Position head;
+        Position tail;
+        bool in(const Position &pos) const;
+        int neighbor_cant_walk(const Position &pos) const;
+        char getCell(const Position &pos) const;
+        bool walked(const Position &pos) const;
+        void walk_through(const Position &pos);
+    public:
+        CharSquareGrid(void);
+        void set_Grid(void);
+        void find_head_tail(void);
+        void print_snake(void);
 };
 
-void set_Grid(CharGrid& s);
-int cant_walk(const CharGrid s, const Position pos);
-void find_head_tail(CharGrid& s);
-void print_snake(const CharGrid &s);
-bool in_square_grid(const int r, const int c, const int n);
+
 #endif
