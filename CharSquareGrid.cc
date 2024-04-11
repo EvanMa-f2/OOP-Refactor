@@ -3,6 +3,8 @@ using namespace std;
 #include "CharSquareGrid.h"
 #define N 50
 
+const vector<Position> CharSquareGrid::dir {{0,1},{0,-1},{1,0},{-1,0}};
+
 CharSquareGrid::CharSquareGrid(void): walk (N,vector<bool> (N,0)){
 }
 
@@ -47,11 +49,10 @@ void CharSquareGrid::walk_through(const Position &pos){
 }
 
 int CharSquareGrid::neighbor_cant_walk(const Position &pos) const{
-    const vector<Position> dir {{0,1},{0,-1},{1,0},{-1,0}};
     int ans {0};
     auto r {pos.getRow()};
     auto c {pos.getCol()};
-    for(auto &d : dir){
+    for(auto d : dir){
         const auto dr {d.getRow()};
         const auto dc {d.getCol()};
         if(!in(Position(r+dr,c+dc))||getCell(Position(r+dr,c+dc))=='0'){
@@ -103,11 +104,10 @@ void CharSquareGrid::find_head_tail(void){
 
 void CharSquareGrid::print_snake(void){
     Position cur {head};
-    const vector<Position> dir {{0,1},{0,-1},{1,0},{-1,0}};
     while(cur.getRow()!=tail.getRow()||cur.getCol()!=tail.getCol()){
         cout<<getCell(cur);
         walk_through(cur);
-        for(auto &d : dir){
+        for(auto d : dir){
             const auto dr {d.getRow()};
             const auto dc {d.getCol()};
             const auto r {cur.getRow()};

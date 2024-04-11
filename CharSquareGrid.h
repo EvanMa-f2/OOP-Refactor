@@ -10,6 +10,7 @@ class CharSquareGrid{
         int size;
         Position head;
         Position tail;
+        static const vector<Position> dir;
         bool in(const Position &pos) const;
         int neighbor_cant_walk(const Position &pos) const;
         char getCell(const Position &pos) const;
